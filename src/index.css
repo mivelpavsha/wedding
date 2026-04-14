@@ -17,7 +17,8 @@ html {
   );
   scroll-padding-bottom: var(--wedding-nav-clearance);
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  /*--heading: system-ui, 'Segoe UI', Roboto, sans-serif;*/
+  --heading: 'Pattaya', 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
