@@ -12,6 +12,8 @@ import { useSectionReplay } from './hooks/use-section-replay'
 import { getWeddingPhase } from './wedding'
 import { weddingSectionIndexFromHash } from './wedding-sections'
 
+// Test for CI
+
 const NAV = [
   { href: '#hero', label: 'Главная' },
   { href: '#details', label: 'Детали' },

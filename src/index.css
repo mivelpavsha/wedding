@@ -3,6 +3,8 @@
 /* Caveat — один из самых популярных нестрогих рукописных шрифтов на Google Fonts; есть кириллица. */
 @theme {
   --font-handwriting: 'Caveat', cursive;
+  /* Pattaya (Google Fonts) — утилита Tailwind: font-pattaya */
+  --font-pattaya: 'Pattaya', sans-serif;
   /* Циферблат: Source Serif 4 — классическая антиква, ровные линейные табличные цифры */
   --font-lock-clock: 'Source Serif 4', 'Noto Serif', Georgia, serif;
 }
@@ -172,11 +174,14 @@ body {
   margin: 0;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+@layer base {
+  /* Иначе неслоёвые h1/h2 перебивают @layer utilities (.font-pattaya и т.д.) */
+  h1,
+  h2 {
+    font-family: var(--heading);
+    font-weight: 500;
+    color: var(--text-h);
+  }
 }
 p {
   margin: 0;
