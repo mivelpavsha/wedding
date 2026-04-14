@@ -176,15 +176,18 @@ export function WeddingPageSections({
                   Где
                 </h2>
                 <p className="text-xl font-light text-(--text-h) md:text-2xl">
-                  ТРК «Варшавский Экспресс»
+                  БЦ «Лениздат»
                 </p>
-                <p className="mt-2 leading-relaxed text-(--text)">
-                  Санкт-Петербург, наб. Обводного канала, 118 — здание бывшего
-                  Варшавского вокзала (Адмиралтейский район). В фудкорте ТРК
-                  «Варшавский Экспресс» ориентир — бар «Евразия» (вывеска может
-                  звучать чуть иначе — это та же точка). В навигаторе: «Варшавский
-                  Экспресс» или «Варшавский вокзал». Точный зал и вход подскажем
-                  ближе к дате.
+                <p className="mt-10 text-sm leading-normal text-(--text) md:text-base">
+                  Набережная реки Фонтанки, 59
+                </p>
+                <p className="mt-10 text-sm leading-normal text-(--text) md:text-base">
+                  Пространство «Высота»
+                </p>
+                <p className="mt-10 text-sm leading-tight text-(--text) md:text-base">
+                  Мы будем ждать вас там,<br />
+                  где Фонтанка отражает небо,<br />
+                  а история встречается с высотой.
                 </p>
               </div>
             </div>
