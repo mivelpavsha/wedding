@@ -129,7 +129,7 @@ export function WeddingPageSections({
               Свадьба
             </p>
             <h1
-              className={`max-w-[min(100%,36rem)] text-balance bg-linear-to-br from-(--text-h) to-(--text) bg-clip-text px-1 font-handwriting text-4xl font-medium leading-[1.08] tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl xl:whitespace-nowrap xl:px-0 ${weddingPhase === 'before' ? 'mb-2' : 'mb-8'}`}
+              className={`w-full max-w-full text-balance bg-linear-to-br from-(--text-h) to-(--text) bg-clip-text px-1 font-pattaya text-4xl font-normal leading-[1.08] tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl ${weddingPhase === 'before' ? 'mb-2' : 'mb-8'}`}
             >
               Михаил<span className="mx-1.5 text-(--text) sm:mx-2.5">&</span>Анастасия
             </h1>
@@ -308,7 +308,7 @@ export function WeddingPageSections({
                 replayVersion={replay.rsvp}
                 className="mx-auto w-full max-w-2xl min-h-0 text-center"
               >
-                <h2 className="mb-4 font-handwriting text-3xl font-medium text-(--text-h) sm:mb-6 sm:text-4xl md:text-5xl">
+                <h2 className="mb-4 text-3xl font-medium text-(--text-h) sm:mb-6 sm:text-4xl md:text-5xl">
                   Будем рады видеть вас
                 </h2>
                 <p className="mb-0 max-w-2xl text-pretty leading-relaxed text-(--text)">
@@ -342,9 +342,11 @@ export function WeddingPageSections({
                   Контакт для вопросов:{' '}
                   <a
                     className="font-medium text-(--accent) underline decoration-(--accent-border) underline-offset-4 transition hover:opacity-80"
-                    href="mailto:hello@example.com"
+                    href="https://t.me/kasilov_m"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    hello@example.com
+                    @kasilov_m
                   </a>
                 </p>
               </SectionEntrance>
