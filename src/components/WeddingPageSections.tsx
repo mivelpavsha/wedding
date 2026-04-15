@@ -344,7 +344,7 @@ export function WeddingPageSections({
                 active={activeIndex === SI.rsvp}
                 className="mx-auto w-full max-w-2xl min-h-0"
               >
-                <h2 className="mb-4 text-center font-(family-name:--sans) text-[1.6875rem] font-medium tracking-tight text-(--text-h) sm:mb-6 sm:text-4xl sm:tracking-normal md:text-5xl">
+                <h2 className="mb-4 text-center font-(family-name: Pattaya) text-[1.6875rem] font-medium tracking-tight text-(--text-h) sm:mb-6 sm:text-4xl sm:tracking-normal md:text-5xl">
                   Будем рады видеть вас
                 </h2>
                 <p className="mb-0 max-w-2xl text-left text-pretty leading-relaxed text-(--text)">
