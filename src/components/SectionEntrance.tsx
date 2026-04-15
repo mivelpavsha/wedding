@@ -2,7 +2,10 @@ import { motion, type Variants } from 'motion/react'
 import { Children, type ReactNode } from 'react'
 
 const container: Variants = {
-  hidden: { opacity: 0 },
+  hidden: {
+    opacity: 0,
+    transition: { duration: 0.12, staggerChildren: 0.04, staggerDirection: -1 },
+  },
   show: {
     opacity: 1,
     transition: {
@@ -15,9 +18,10 @@ const container: Variants = {
 const child: Variants = {
   hidden: {
     opacity: 0,
-    y: 36,
+    y: 28,
     rotateX: -6,
     filter: 'blur(8px)',
+    transition: { duration: 0.12 },
   },
   show: {
     opacity: 1,
@@ -36,7 +40,9 @@ const child: Variants = {
 type Props = {
   children: ReactNode
   className?: string
-  /** Увеличивать при уходе с секции — анимация снова с нуля при возврате. */
+  /** Слайд активен в Swiper — анимация входа при true, сброс при false. */
+  active: boolean
+  /** Увеличивать при уходе с секции — полный remount при следующем входе (опционально). */
   replayVersion?: number
 }
 
@@ -44,6 +50,7 @@ type Props = {
 export function SectionEntrance({
   children,
   className,
+  active,
   replayVersion = 0,
 }: Props) {
   return (
@@ -52,8 +59,7 @@ export function SectionEntrance({
       className={className}
       style={{ perspective: 1200 }}
       initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.22, margin: '-10px' }}
+      animate={active ? 'show' : 'hidden'}
       variants={container}
     >
       {Children.toArray(children).map((node, i) => (

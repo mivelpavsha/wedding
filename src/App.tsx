@@ -4,15 +4,12 @@ import HomeRounded from '@mui/icons-material/HomeRounded'
 import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import SendRounded from '@mui/icons-material/SendRounded'
 import IconButton from '@mui/material/IconButton'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
 import { ThemeFab } from './components/ThemeFab'
 import { WeddingConfetti } from './components/WeddingConfetti'
 import { WeddingMobileBottomNav } from './components/WeddingMobileBottomNav'
-import {
-  type WeddingReplayState,
-  WeddingPageSections,
-} from './components/WeddingPageSections'
+import { WeddingPageSections } from './components/WeddingPageSections'
 import { useBottomNavEndRadius } from './hooks/use-bottom-nav-end-radius'
 import { useBottomNavPill } from './hooks/use-bottom-nav-pill'
 import { useIsMaxMd } from './hooks/use-is-max-md'
@@ -39,7 +36,7 @@ const BOTTOM_NAV_SHADOW =
   'shadow-[0_10px_28px_rgba(0,0,0,0.16)] dark:shadow-[0_10px_32px_rgba(0,0,0,0.42)] md:shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)]'
 
 export default function App() {
-  const replay = useSectionReplay()
+  const { replay, bumpSlideOnLeave } = useSectionReplay()
   const now = useNowEverySecond()
   const weddingPhase = getWeddingPhase(now)
   const swiperRef = useRef<SwiperType | null>(null)
@@ -47,6 +44,19 @@ export default function App() {
   const bottomNavLinkRefs = useRef<(HTMLElement | null)[]>([])
   const [activeIndex, setActiveIndex] = useState(() =>
     weddingSectionIndexFromHash(),
+  )
+  const prevSlideRef = useRef(activeIndex)
+
+  const handleActiveIndexChange = useCallback(
+    (index: number) => {
+      const prev = prevSlideRef.current
+      if (prev !== index) {
+        bumpSlideOnLeave(prev)
+        prevSlideRef.current = index
+      }
+      setActiveIndex(index)
+    },
+    [bumpSlideOnLeave],
   )
   const isMaxMd = useIsMaxMd()
   const { pill: navPill, pillTransitionsEnabled } = useBottomNavPill(
@@ -68,13 +78,14 @@ export default function App() {
         aria-label="Содержание приглашения"
       >
         <WeddingPageSections
-          replay={replay as WeddingReplayState}
+          replay={replay}
+          activeIndex={activeIndex}
           now={now}
           weddingPhase={weddingPhase}
           onSwiper={(swiper) => {
             swiperRef.current = swiper
           }}
-          onActiveIndexChange={setActiveIndex}
+          onActiveIndexChange={handleActiveIndexChange}
         />
       </main>
 

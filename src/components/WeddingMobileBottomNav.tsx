@@ -156,7 +156,8 @@ export function WeddingMobileBottomNav({
           id="wedding-bottom-nav"
           className="relative z-10 flex w-max max-w-[min(100vw-1.5rem,42rem)] gap-4 self-center rounded-none border-0 bg-transparent p-[6px] shadow-none"
           style={{
-            paddingBottom: 'max(6px, env(safe-area-inset-bottom, 0px))',
+            /* Safe-area уже в `App`: `max-md:bottom-[max(1rem,var(--wedding-safe-bottom))]` — не дублировать env() здесь */
+            paddingBottom: 6,
           }}
           aria-label="Навигация по разделам"
         >

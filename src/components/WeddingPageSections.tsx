@@ -21,20 +21,33 @@ import type { WeddingPhase } from '../wedding'
 import { WEDDING_DETAILS_CHIPS } from '../wedding-details-chips'
 import { WEDDING_PROGRAM } from '../wedding-program'
 import { setRsvpTouchGuardContext } from '../rsvp-swiper-touch-guard'
+import type { WeddingReplayState } from '../hooks/use-section-replay'
 import {
   WEDDING_RSVP_SECTION_INDEX,
   weddingSectionIndexFromHash,
 } from '../wedding-sections'
 
+export type { WeddingReplayState }
+
+const SI = {
+  hero: 0,
+  details: 1,
+  story: 2,
+  program: 3,
+  rsvp: WEDDING_RSVP_SECTION_INDEX,
+} as const
+
 const programList: Variants = {
-  hidden: {},
+  hidden: {
+    transition: { staggerChildren: 0.04, staggerDirection: -1 },
+  },
   show: {
     transition: { staggerChildren: 0.1, delayChildren: 0.05 },
   },
 }
 
 const programItem: Variants = {
-  hidden: { opacity: 0, x: -20, skewX: -2 },
+  hidden: { opacity: 0, x: -14, skewX: -2, transition: { duration: 0.12 } },
   show: {
     opacity: 1,
     x: 0,
@@ -46,16 +59,9 @@ const programItem: Variants = {
 const HERO_LEAD_BEFORE =
   'Одна вечеринка, два сердца и бесконечность маленьких моментов — приходите разделить с нами этот день.'
 
-export type WeddingReplayState = {
-  hero: number
-  details: number
-  story: number
-  program: number
-  rsvp: number
-}
-
 type Props = {
   replay: WeddingReplayState
+  activeIndex: number
   now: Dayjs
   weddingPhase: WeddingPhase
   onSwiper: (swiper: SwiperType) => void
@@ -70,6 +76,7 @@ const slideShell =
 /** Вертикальный Swiper: колесо / свайп по целым секциям; hash в URL */
 export function WeddingPageSections({
   replay,
+  activeIndex,
   now,
   weddingPhase,
   onSwiper,
@@ -104,13 +111,11 @@ export function WeddingPageSections({
     if (el) el.scrollTop = 0
   }, [])
 
-  /** При открытии с #rsvp ref может появиться после первого кадра */
+  /** До отрисовки слайда: внутренний скролл в 0, иначе motion и scrollTop конфликтуют */
   useLayoutEffect(() => {
-    if (initialSlide !== WEDDING_RSVP_SECTION_INDEX) return
+    if (activeIndex !== WEDDING_RSVP_SECTION_INDEX) return
     resetRsvpInnerScroll()
-    const id = requestAnimationFrame(resetRsvpInnerScroll)
-    return () => cancelAnimationFrame(id)
-  }, [initialSlide, resetRsvpInnerScroll])
+  }, [activeIndex, resetRsvpInnerScroll])
 
   return (
     <Swiper
@@ -136,9 +141,6 @@ export function WeddingPageSections({
         onSwiper(s)
       }}
       onSlideChange={(s) => onActiveIndexChange(s.activeIndex)}
-      onSlideChangeTransitionEnd={(s) => {
-        if (s.activeIndex === WEDDING_RSVP_SECTION_INDEX) resetRsvpInnerScroll()
-      }}
     >
       <SwiperSlide
         className="flex! min-h-0 flex-col"
@@ -151,6 +153,7 @@ export function WeddingPageSections({
         >
           <SectionEntrance
             replayVersion={replay.hero}
+            active={activeIndex === SI.hero}
             className="mx-auto flex max-w-3xl flex-col items-center text-center"
           >
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.35em] text-(--accent)">
@@ -180,11 +183,12 @@ export function WeddingPageSections({
       >
         <section
           id="details"
-          className={`relative flex min-h-dvh flex-col justify-center border-t border-(--border) bg-(--bg) ${slideShell}`}
+          className={`relative flex min-h-dvh flex-col justify-center bg-(--bg) ${slideShell}`}
           aria-label="Детали"
         >
           <SectionEntrance
             replayVersion={replay.details}
+            active={activeIndex === SI.details}
             className="mx-auto w-full max-w-4xl"
           >
             <div className="grid w-full gap-10 md:grid-cols-2 md:gap-14">
@@ -240,11 +244,12 @@ export function WeddingPageSections({
       >
         <section
           id="story"
-          className={`relative flex min-h-dvh flex-col justify-center border-t border-(--border) bg-linear-to-b from-(--bg) to-(--code-bg)/50 ${slideShell} dark:to-zinc-900/40`}
+          className={`relative flex min-h-dvh flex-col justify-center bg-linear-to-b from-(--bg) to-(--code-bg)/50 ${slideShell} dark:to-zinc-900/40`}
           aria-label="История"
         >
           <SectionEntrance
             replayVersion={replay.story}
+            active={activeIndex === SI.story}
             className="mx-auto max-w-2xl text-left"
           >
             <blockquote className="text-center font-handwriting text-2xl font-normal leading-snug text-(--text-h) md:text-3xl md:leading-relaxed">
@@ -272,11 +277,12 @@ export function WeddingPageSections({
       >
         <section
           id="program"
-          className={`relative flex min-h-dvh flex-col justify-center border-t border-(--border) bg-(--bg) ${slideShell}`}
+          className={`relative flex min-h-dvh flex-col justify-center bg-(--bg) ${slideShell}`}
           aria-label="Программа"
         >
           <SectionEntrance
             replayVersion={replay.program}
+            active={activeIndex === SI.program}
             className="mx-auto w-full max-w-lg"
           >
             <h2 className="mb-8 text-center font-(family-name:--sans) text-xs font-medium uppercase tracking-[0.35em] text-(--accent) sm:mb-12 sm:text-sm">
@@ -285,9 +291,8 @@ export function WeddingPageSections({
             <motion.ol
               key={replay.program}
               className="relative space-y-0 border-s border-(--border) ps-6 sm:ps-8"
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.35, margin: '-10px' }}
+              initial={false}
+              animate={activeIndex === SI.program ? 'show' : 'hidden'}
               variants={programList}
             >
               {WEDDING_PROGRAM.map((item, index) => (
@@ -323,7 +328,7 @@ export function WeddingPageSections({
             syncRsvpTouchGuard()
           }}
           id="rsvp"
-          className="relative flex min-h-0 flex-1 flex-col overflow-hidden border-t border-(--border) bg-linear-to-t from-violet-50/50 to-(--bg) dark:from-violet-950/30"
+          className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-linear-to-t from-violet-50/50 to-(--bg) dark:from-violet-950/30"
           aria-label="Ответ"
         >
           <div
@@ -336,6 +341,7 @@ export function WeddingPageSections({
             <div className="w-full min-h-0 shrink-0">
               <SectionEntrance
                 replayVersion={replay.rsvp}
+                active={activeIndex === SI.rsvp}
                 className="mx-auto w-full max-w-2xl min-h-0"
               >
                 <h2 className="mb-4 text-center font-(family-name:--sans) text-[1.6875rem] font-medium tracking-tight text-(--text-h) sm:mb-6 sm:text-4xl sm:tracking-normal md:text-5xl">
