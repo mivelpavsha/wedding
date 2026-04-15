@@ -1435,11 +1435,12 @@ function buildEmailPayload(data: RsvpFormValues) {
               color="text.secondary"
               sx={{ display: "list-item" }}
             >
-              Напитки по желанию; блок{" "}
+              Напитки — по желанию. Блок{" "}
               <strong style={{ fontWeight: 600 }}>
                 «Пожелания для организаторов»
               </strong>{" "}
-              в конце — необязателен: аллергии, детали, тёплое слово.
+              в конце можно не заполнять — там по желанию аллергии, детали и
+              тёплое слово.
             </Typography>
           </Stack>
           <Typography
@@ -1890,11 +1891,12 @@ function RsvpStepperInner() {
               color="text.secondary"
               sx={{ display: "list-item" }}
             >
-              Напитки по желанию; блок{" "}
+              Напитки — по желанию. Блок{" "}
               <strong style={{ fontWeight: 600 }}>
                 «Пожелания для организаторов»
               </strong>{" "}
-              в конце — необязателен: аллергии, детали, тёплое слово.
+              в конце можно не заполнять — там по желанию аллергии, детали и
+              тёплое слово.
             </Typography>
           </Stack>
           <Typography

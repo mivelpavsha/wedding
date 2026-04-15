@@ -6,9 +6,9 @@ import {
   Suspense,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
 import { HashNavigation, Keyboard, Mousewheel } from 'swiper/modules'
@@ -42,7 +42,7 @@ const programList: Variants = {
     transition: { staggerChildren: 0.04, staggerDirection: -1 },
   },
   show: {
-    transition: { staggerChildren: 0.1, delayChildren: 0.05 },
+    transition: { staggerChildren: 0.065 },
   },
 }
 
@@ -58,6 +58,16 @@ const programItem: Variants = {
 
 const HERO_LEAD_BEFORE =
   'Одна вечеринка, два сердца и бесконечность маленьких моментов — приходите разделить с нами этот день.'
+
+/** По предложениям: у `SectionEntrance` stagger идёт по детям — один абзац = одна анимация; так получаем каскад по частям текста. */
+const STORY_BODY_SENTENCES = [
+  'Мы оба сидим за компами на том самом месте, которое в разговорах зовётся Фертоник (в пропуске там честно написано «Фертоинг», но это не мешает нам называть всё по-своему).',
+  'Михаил — инженер-конструктор: чертит, считает, иногда ругается на допуски.',
+  'Анастасия ведёт документацию в Excel для совершенно других задач — ни одной общей строки в таблицах с его чертежами.',
+  'Познакомились мы не по служебке: она случайно кинула ему в корпоративный чат не тот файл — не спецификацию, а «версию 12_финал_точно_финал.xlsx».',
+  'Он открыл, увидел цветные ячейки вместо фланцев и написал: «Это узел или сводная?»',
+  'Так началась любовь, которую не смёржить без конфликтов — зато с автосохранением.',
+] as const
 
 type Props = {
   replay: WeddingReplayState
@@ -83,9 +93,17 @@ export function WeddingPageSections({
   onActiveIndexChange,
 }: Props) {
   const initialSlide = useMemo(() => weddingSectionIndexFromHash(), [])
+  /** Индекс после окончания анимации свайпа — иначе entrance успевает до того, как слайд виден */
+  const [settledSlideIndex, setSettledSlideIndex] = useState(initialSlide)
   const swiperRef = useRef<SwiperType | null>(null)
   const rsvpScrollRef = useRef<HTMLDivElement | null>(null)
   const rsvpHitAreaRef = useRef<HTMLElement | null>(null)
+
+  const isEntranceActive = useCallback(
+    (sectionIndex: number) =>
+      activeIndex === sectionIndex && settledSlideIndex === sectionIndex,
+    [activeIndex, settledSlideIndex],
+  )
 
   const syncRsvpTouchGuard = useCallback(() => {
     setRsvpTouchGuardContext({
@@ -111,11 +129,6 @@ export function WeddingPageSections({
     if (el) el.scrollTop = 0
   }, [])
 
-  /** До отрисовки слайда: внутренний скролл в 0, иначе motion и scrollTop конфликтуют */
-  useLayoutEffect(() => {
-    if (activeIndex !== WEDDING_RSVP_SECTION_INDEX) return
-    resetRsvpInnerScroll()
-  }, [activeIndex, resetRsvpInnerScroll])
 
   return (
     <Swiper
@@ -141,6 +154,11 @@ export function WeddingPageSections({
         onSwiper(s)
       }}
       onSlideChange={(s) => onActiveIndexChange(s.activeIndex)}
+      onSlideChangeTransitionEnd={(s) => {
+        const i = s.activeIndex
+        setSettledSlideIndex(i)
+        if (i === WEDDING_RSVP_SECTION_INDEX) resetRsvpInnerScroll()
+      }}
     >
       <SwiperSlide
         className="flex! min-h-0 flex-col"
@@ -153,7 +171,7 @@ export function WeddingPageSections({
         >
           <SectionEntrance
             replayVersion={replay.hero}
-            active={activeIndex === SI.hero}
+            active={isEntranceActive(SI.hero)}
             className="mx-auto flex max-w-3xl flex-col items-center text-center"
           >
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.35em] text-(--accent)">
@@ -188,7 +206,7 @@ export function WeddingPageSections({
         >
           <SectionEntrance
             replayVersion={replay.details}
-            active={activeIndex === SI.details}
+            active={isEntranceActive(SI.details)}
             className="mx-auto w-full max-w-4xl"
           >
             <div className="grid w-full gap-10 md:grid-cols-2 md:gap-14">
@@ -249,24 +267,20 @@ export function WeddingPageSections({
         >
           <SectionEntrance
             replayVersion={replay.story}
-            active={activeIndex === SI.story}
+            active={isEntranceActive(SI.story)}
             className="mx-auto max-w-2xl text-left"
           >
             <blockquote className="text-center font-handwriting text-2xl font-normal leading-snug text-(--text-h) md:text-3xl md:leading-relaxed">
               «Фертоник: не завод, а повод.»
             </blockquote>
-            <p className="mt-8 text-sm leading-relaxed text-(--text) md:mt-10 md:text-base">
-              Мы оба сидим за компами на том самом месте, которое в разговорах
-              зовётся Фертоник (в пропуске там честно написано «Фертоинг», но это
-              не мешает нам называть всё по-своему). Михаил — инженер-конструктор:
-              чертит, считает, иногда ругается на допуски. Анастасия ведёт
-              документацию в Excel для совершенно других задач — ни одной общей
-              строки в таблицах с его чертежами. Познакомились мы не по служебке: она
-              случайно кинула ему в корпоративный чат не тот файл — не спецификацию, а
-              «версию 12_финал_точно_финал.xlsx». Он открыл, увидел цветные ячейки
-              вместо фланцев и написал: «Это узел или сводная?» Так началась любовь,
-              которую не смёржить без конфликтов — зато с автосохранением.
-            </p>
+            {STORY_BODY_SENTENCES.map((sentence, i) => (
+              <p
+                key={i}
+                className={`text-pretty text-sm leading-relaxed text-(--text) md:text-base ${i === 0 ? 'mt-8 md:mt-10' : 'mt-3'}`}
+              >
+                {sentence}
+              </p>
+            ))}
           </SectionEntrance>
         </section>
       </SwiperSlide>
@@ -282,7 +296,7 @@ export function WeddingPageSections({
         >
           <SectionEntrance
             replayVersion={replay.program}
-            active={activeIndex === SI.program}
+            active={isEntranceActive(SI.program)}
             className="mx-auto w-full max-w-lg"
           >
             <h2 className="mb-8 text-center font-(family-name:--sans) text-xs font-medium uppercase tracking-[0.35em] text-(--accent) sm:mb-12 sm:text-sm">
@@ -292,7 +306,7 @@ export function WeddingPageSections({
               key={replay.program}
               className="relative space-y-0 border-s border-(--border) ps-6 sm:ps-8"
               initial={false}
-              animate={activeIndex === SI.program ? 'show' : 'hidden'}
+              animate={isEntranceActive(SI.program) ? 'show' : 'hidden'}
               variants={programList}
             >
               {WEDDING_PROGRAM.map((item, index) => (
@@ -341,7 +355,7 @@ export function WeddingPageSections({
             <div className="w-full min-h-0 shrink-0">
               <SectionEntrance
                 replayVersion={replay.rsvp}
-                active={activeIndex === SI.rsvp}
+                active={isEntranceActive(SI.rsvp)}
                 className="mx-auto w-full max-w-2xl min-h-0"
               >
                 <h2 className="mb-4 text-center font-(family-name: Pattaya) text-[1.6875rem] font-medium tracking-tight text-(--text-h) sm:mb-6 sm:text-4xl sm:tracking-normal md:text-5xl">
