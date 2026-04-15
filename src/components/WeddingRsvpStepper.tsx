@@ -472,17 +472,17 @@ const ALCOHOL_OPTIONS: { id: string; label: string }[] = [
   { id: "white_semi", label: "Белое полусладкое вино" },
   { id: "white_dry", label: "Белое сухое вино" },
   { id: "whiskey", label: "Виски" },
-  { id: "cognac", label: "Коньяк" },
+//{ id: "cognac", label: "Коньяк" },
   { id: "vodka", label: "Водка" },
-  { id: "rum", label: "Ром" },
-  { id: "gin", label: "Джин" },
-  { id: "tequila", label: "Текила" },
+//{ id: "rum", label: "Ром" },
+//{ id: "gin", label: "Джин" },
+//{ id: "tequila", label: "Текила" },
   { id: "soft", label: "Безалкогольные напитки" },
 ];
 
 const MEAL_OPTIONS: { id: string; label: string }[] = [
-  { id: "meat", label: "Мясо" },
-  { id: "fish", label: "Рыба" },
+  { id: "meat", label: "Мясо (Щечки говяжьи с картофельным пюре и соусом демигляс)" },
+  { id: "fish", label: "Рыба (Стейк из форели со сливочным соусом на подушке из овощей)" },
 ];
 
 const RSVP_STEP_LABELS = [
@@ -783,7 +783,7 @@ function StepAlcohol() {
   );
 }
 
-function StepMeals() {
+/*function StepMeals() {
   const {
     control,
     formState: { errors },
@@ -828,6 +828,94 @@ function StepMeals() {
                   label={opt.label}
                 />
               ))}
+            </RadioGroup>
+          )}
+        />
+        {errors.meal && <FormHelperText>{errors.meal.message}</FormHelperText>}
+      </FormControl>
+    </Box>
+  );
+}
+*/
+function StepMeals() {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<RsvpFormValues>();
+
+  return (
+    <Box sx={{ mt: { xs: 0.5, sm: 1 } }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ mb: { xs: 1, sm: 2 } }}
+      >
+        Так же уточните Ваши предпочтения в горячих блюдах:
+      </Typography>
+      <FormControl error={!!errors.meal} component="fieldset">
+        <FormLabel component="legend" required>
+          Горячее блюдо
+        </FormLabel>
+        <Controller
+          name="meal"
+          control={control}
+          rules={{
+            validate: (v, form) => {
+              if (form.attendance !== "yes") return true;
+              return v ? true : "Выберите одно блюдо";
+            },
+          }}
+          render={({ field }) => (
+            <RadioGroup
+              name={field.name}
+              ref={field.ref}
+              value={field.value}
+              onBlur={field.onBlur}
+              onChange={(e) => {
+                field.onChange(e.target.value as "meat" | "fish");
+              }}
+            >
+              {/* Мясо */}
+              <Box>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Radio value="meat" color="primary" />
+                  <Typography sx={{ fontWeight: 500, fontSize: "1.1rem" }}>
+                    Мясо
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ 
+                    ml: "40px",
+                    wordBreak: "break-word",
+                    pr: { xs: 1, sm: 0 }
+                  }}
+                >
+                  (Щечки говяжьи с картофельным пюре и соусом демиглас)
+                </Typography>
+              </Box>
+
+              {/* Рыба */}
+              <Box sx={{ mt: 1.5 }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Radio value="fish" color="primary" />
+                  <Typography sx={{ fontWeight: 500, fontSize: "1.1rem" }}>
+                    Рыба
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ 
+                    ml: "40px",
+                    wordBreak: "break-word",
+                    pr: { xs: 1, sm: 0 }
+                  }}
+                >
+                  (Стейк из форели со сливочным соусом на подушке из овощей)
+                </Typography>
+              </Box>
             </RadioGroup>
           )}
         />
@@ -916,7 +1004,7 @@ function buildEmailPayload(data: RsvpFormValues) {
   };
 }
 
-function RsvpStepperInner() {
+/*function RsvpStepperInner() {
   const methods = useForm<RsvpFormValues>({
     defaultValues: {
       fullName: "",
@@ -1374,7 +1462,463 @@ function RsvpStepperInner() {
       </Box>
     </FormProvider>
   );
+}*/
+function RsvpStepperInner() {
+  const methods = useForm<RsvpFormValues>({
+    defaultValues: {
+      fullName: "",
+      attendance: undefined,
+      alcohol: [],
+      meal: "",
+      wishes: "",
+    },
+    mode: "onBlur",
+  });
+  const {
+    control,
+    trigger,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { isSubmitting },
+  } = methods;
+
+  const attendance = useWatch({ control, name: "attendance" });
+  const [activeStep, setActiveStep] = useState(0);
+  const [submitStatus, setSubmitStatus] = useState<RsvpSubmitStatus>("idle");
+
+  const stepCompleted = useCallback(
+    (index: number) => {
+      if (index === 0) return activeStep > 0;
+      if (index === 1) return activeStep > 1;
+      if (index === 2) return attendance === "no" || activeStep > 2;
+      if (index === 3) return attendance === "no" || activeStep > 3;
+      if (index === 4) return activeStep > 4;
+      return false;
+    },
+    [activeStep, attendance],
+  );
+
+  const goNext = useCallback(async () => {
+    if (activeStep === 0) {
+      const ok = await trigger("fullName");
+      if (ok) setActiveStep(1);
+      return;
+    }
+    if (activeStep === 1) {
+      const ok = await trigger("attendance");
+      if (!ok) return;
+      if (attendance === "yes") setActiveStep(2);
+      else setActiveStep(4);
+      return;
+    }
+    if (activeStep === 2 && attendance === "yes") {
+      setActiveStep(3);
+      return;
+    }
+    if (activeStep === 3 && attendance === "yes") {
+      setActiveStep(4);
+    }
+  }, [activeStep, attendance, trigger]);
+
+  const goBack = useCallback(() => {
+    setActiveStep((s) => {
+      if (s === 4 && attendance === "no") return 1;
+      return Math.max(0, s - 1);
+    });
+  }, [attendance]);
+
+  const onSubmit = useCallback(
+    async (data: RsvpFormValues) => {
+      const egg = detectConfettiEasterEgg(data);
+      if (egg) {
+        if (egg === "destroy") {
+          setWeddingConfettiForceActive(false);
+          setWeddingConfettiSuppressed(true);
+          setSubmitStatus("success_egg_destroy");
+        } else {
+          setWeddingConfettiSuppressed(false);
+          setWeddingConfettiForceActive(true);
+          setSubmitStatus("success_egg_create");
+        }
+        reset();
+        setActiveStep(0);
+        return;
+      }
+
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+      if (!serviceId || !templateId || !publicKey) {
+        console.error(
+          "EmailJS: задайте VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, VITE_EMAILJS_PUBLIC_KEY в .env",
+        );
+        setSubmitStatus("error");
+        return;
+      }
+
+      const templateParams = buildEmailPayload(data);
+
+      try {
+        await emailjs.send(serviceId, templateId, templateParams, {
+          publicKey,
+        });
+        setSubmitStatus("success");
+        reset();
+        setActiveStep(0);
+      } catch (e) {
+        console.error(e);
+        setSubmitStatus("error");
+      }
+    },
+    [reset],
+  );
+
+  if (submitStatus === "success_egg_destroy") {
+    return (
+      <Box
+        sx={{
+          textAlign: "center",
+          py: 3,
+          px: 2,
+          borderRadius: 2,
+          bgcolor: "action.hover",
+          border: "1px solid",
+          borderColor: "divider",
+          marginBottom: 2.5,
+        }}
+      >
+        <Typography variant="h6" gutterBottom color="primary">
+          Конфетти отключено
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Праздничное конфетти на сайте выключено, в том числе режим с
+          пасхалки. В день свадьбы и годовщины оно не покажется, пока снова не
+          включите через пасхалку. Письмо не отправлялось.
+        </Typography>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => setSubmitStatus("idle")}
+        >
+          Вернуться к форме
+        </Button>
+      </Box>
+    );
+  }
+
+  if (submitStatus === "success_egg_create") {
+    return (
+      <>
+        <RsvpSuccessCelebration />
+        <Box
+          sx={{
+            textAlign: "center",
+            py: 3,
+            px: 2,
+            borderRadius: 2,
+            bgcolor: "action.hover",
+            border: "1px solid",
+            borderColor: "divider",
+            marginBottom: 2.5,
+          }}
+        >
+          <Typography variant="h6" gutterBottom color="primary">
+            Конфетти снова включено
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Праздничное конфетти уже включено на сайте (как в день свадьбы). В
+            день свадьбы и годовщины оно снова появится само. Письмо не
+            отправлялось.
+          </Typography>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => setSubmitStatus("idle")}
+          >
+            Вернуться к форме
+          </Button>
+        </Box>
+      </>
+    );
+  }
+
+  if (submitStatus === "success") {
+    return (
+      <>
+        <RsvpSuccessCelebration />
+        <Box
+          sx={{
+            textAlign: "center",
+            py: 3,
+            px: 2,
+            borderRadius: 2,
+            bgcolor: "action.hover",
+            border: "1px solid",
+            borderColor: "divider",
+            marginBottom: 2.5,
+          }}
+        >
+          <Typography variant="h6" gutterBottom color="primary">
+            Спасибо! Ответ отправлен
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Мы получили ваше сообщение на почту и очень ждём встречи.
+          </Typography>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => setSubmitStatus("idle")}
+          >
+            Отправить ещё один ответ
+          </Button>
+        </Box>
+      </>
+    );
+  }
+
+  return (
+    <FormProvider {...methods}>
+      <Box
+        component="form"
+        noValidate
+        sx={{ width: "100%", textAlign: "left" }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (activeStep === 4) {
+            handleSubmit(onSubmit)();
+          } else {
+            goNext();
+          }
+        }}
+      >
+        <Stepper activeStep={activeStep} orientation="vertical">
+          {RSVP_STEP_LABELS.map((label, index) => (
+            <Step key={label} completed={stepCompleted(index)}>
+              <StepLabel
+                optional={
+                  index === 2 && attendance === "no" ? (
+                    <Typography variant="caption" color="text.secondary">
+                      не требуется
+                    </Typography>
+                  ) : index === 2 && attendance === "yes" ? (
+                    "по желанию"
+                  ) : index === 3 && attendance === "no" ? (
+                    <Typography variant="caption" color="text.secondary">
+                      не требуется
+                    </Typography>
+                  ) : index === 4 ? (
+                    "необязательно"
+                  ) : undefined
+                }
+              >
+                <Typography variant="subtitle2" component="span">
+                  {label}
+                </Typography>
+              </StepLabel>
+              <StepContent>
+                {index === 0 && <StepName />}
+                {index === 1 && (
+                  <StepPresence
+                    onAttendancePick={(v, prev) => {
+                      if (v === "no" && activeStep > 1) {
+                        setActiveStep(1);
+                      }
+                      if (v === "yes" && prev === "no") {
+                        setValue("alcohol", []);
+                        setValue("meal", "");
+                        setValue("wishes", "");
+                      }
+                    }}
+                  />
+                )}
+                {index === 2 &&
+                  (attendance === "yes" ? (
+                    <StepAlcohol />
+                  ) : attendance === "no" ? (
+                    <SkippedStepHint>
+                      Этот шаг не нужен — вы отметили, что не сможете прийти.
+                    </SkippedStepHint>
+                  ) : null)}
+                {index === 3 &&
+                  (attendance === "yes" ? (
+                    <StepMeals />
+                  ) : attendance === "no" ? (
+                    <SkippedStepHint>
+                      Этот шаг не нужен — вы отметили, что не сможете прийти.
+                    </SkippedStepHint>
+                  ) : null)}
+                {index === 4 && <StepWishes />}
+              </StepContent>
+            </Step>
+          ))}
+        </Stepper>
+
+        <Box
+          sx={{
+            mt: { xs: 1.5, sm: 2 },
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 1,
+            alignItems: "center",
+          }}
+        >
+          {activeStep === 0 && (
+            <Button type="submit" variant="contained">
+              Далее
+            </Button>
+          )}
+
+          {activeStep === 1 && (
+            <>
+              <Button onClick={goBack} disabled={isSubmitting}>
+                Назад
+              </Button>
+              <Button type="submit" variant="contained" disabled={isSubmitting}>
+                Далее
+              </Button>
+            </>
+          )}
+
+          {activeStep === 2 && attendance === "yes" && (
+            <>
+              <Button onClick={goBack} disabled={isSubmitting}>
+                Назад
+              </Button>
+              <Button type="submit" variant="contained" disabled={isSubmitting}>
+                Далее
+              </Button>
+            </>
+          )}
+
+          {activeStep === 3 && attendance === "yes" && (
+            <>
+              <Button onClick={goBack} disabled={isSubmitting}>
+                Назад
+              </Button>
+              <Button type="submit" variant="contained" disabled={isSubmitting}>
+                Далее
+              </Button>
+            </>
+          )}
+
+          {activeStep === 4 && (
+            <>
+              <Button onClick={goBack} disabled={isSubmitting}>
+                Назад
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                loading={isSubmitting}
+                endIcon={<SendIcon />}
+                sx={{ boxShadow: 2, px: 3 }}
+              >
+                Отправить ответ
+              </Button>
+            </>
+          )}
+        </Box>
+
+        {submitStatus === "error" && (
+          <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+            Не удалось отправить ответ. Попробуйте чуть позже или напишите нам
+            на почту.
+          </Typography>
+        )}
+
+        <Divider sx={{ my: { xs: 2, sm: 3 }, borderColor: "divider" }} />
+
+        <Box
+          sx={{
+            p: { xs: 1.5, sm: 2.25 },
+            mb: { xs: 2.5, sm: 3 },
+            borderRadius: 2,
+            border: "1px solid",
+            borderColor: "divider",
+            bgcolor: (t) =>
+              t.palette.mode === "dark"
+                ? "rgba(255,255,255,0.04)"
+                : "rgba(0,0,0,0.02)",
+          }}
+        >
+          <Typography
+            variant="overline"
+            sx={{
+              display: "block",
+              letterSpacing: "0.12em",
+              color: "text.secondary",
+              mb: 1.5,
+              fontWeight: 600,
+            }}
+          >
+            Как устроена анкета
+          </Typography>
+          <Stack
+            spacing={1.25}
+            component="ul"
+            sx={{ m: 0, pl: 2.25, listStyle: "disc" }}
+          >
+            <Typography
+              component="li"
+              variant="body2"
+              color="text.secondary"
+              sx={{ display: "list-item" }}
+            >
+              <strong style={{ color: "inherit", fontWeight: 600 }}>
+                Обязательно:
+              </strong>{" "}
+              имя и фамилия, ответ о присутствии.
+            </Typography>
+            <Typography
+              component="li"
+              variant="body2"
+              color="text.secondary"
+              sx={{ display: "list-item" }}
+            >
+              Если отмечаете, что{" "}
+              <strong style={{ fontWeight: 600 }}>придёте</strong>, на шаге с
+              горячим блюдом нужно выбрать{" "}
+              <strong style={{ fontWeight: 600 }}>мясо или рыбу</strong> — без
+              этого отправка не завершится.
+            </Typography>
+            <Typography
+              component="li"
+              variant="body2"
+              color="text.secondary"
+              sx={{ display: "list-item" }}
+            >
+              Напитки по желанию; блок{" "}
+              <strong style={{ fontWeight: 600 }}>
+                «Пожелания для организаторов»
+              </strong>{" "}
+              в конце — необязателен: аллергии, детали, тёплое слово.
+            </Typography>
+          </Stack>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{
+              display: "block",
+              mt: { xs: 1.5, sm: 2 },
+              pt: { xs: 1.5, sm: 2 },
+              borderTop: "1px solid",
+              borderColor: "divider",
+              lineHeight: 1.6,
+            }}
+          >
+            После отправки ваш ответ приходит{" "}
+            <strong>на почту организаторам</strong> — мы храним данные только
+            для подготовки праздника.
+          </Typography>
+        </Box>
+      </Box>
+    </FormProvider>
+  );
 }
+
 
 /** Вертикальный степпер в духе MUI + react-hook-form + EmailJS */
 export function WeddingRsvpStepper() {
