@@ -11,8 +11,6 @@
 
 html {
   scroll-behavior: smooth;
-  /* Полноэкранное SPA: без этого Chrome/Android тянет pull-to-refresh вместо свайпа Swiper к предыдущей секции */
-  overscroll-behavior-y: none;
   /* Одинаковое лёгкое стекло для таблетки и холма (визуально «сильнее» там, где фон плотнее) */
   --wedding-nav-backdrop-blur: 6px;
   --wedding-nav-backdrop-saturate: 1.12;
@@ -42,6 +40,14 @@ html {
   @media (max-width: 1024px) {
     font-size: 16px;
   }
+}
+
+/*
+ * На первой секции класс не вешаем — нативный pull-to-refresh на таче.
+ * Со 2-й секции App вешает класс, иначе жест «назад» по вертикали даёт перезагрузку вместо Swiper.
+ */
+html.wedding-lock-vertical-overscroll {
+  overscroll-behavior-y: none;
 }
 
 [data-theme='light'] {

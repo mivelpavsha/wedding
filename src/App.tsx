@@ -4,7 +4,7 @@ import HomeRounded from '@mui/icons-material/HomeRounded'
 import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import SendRounded from '@mui/icons-material/SendRounded'
 import IconButton from '@mui/material/IconButton'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
 import { ThemeFab } from './components/ThemeFab'
 import { WeddingConfetti } from './components/WeddingConfetti'
@@ -57,6 +57,13 @@ export default function App() {
   )
 
   useBottomNavEndRadius(bottomNavRef, isMaxMd)
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (activeIndex > 0) root.classList.add('wedding-lock-vertical-overscroll')
+    else root.classList.remove('wedding-lock-vertical-overscroll')
+    return () => root.classList.remove('wedding-lock-vertical-overscroll')
+  }, [activeIndex])
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">

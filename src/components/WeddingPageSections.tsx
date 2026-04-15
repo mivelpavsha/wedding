@@ -56,6 +56,10 @@ type Props = {
 const slideShell =
   'box-border flex min-h-0 w-full flex-1 flex-col justify-center overflow-y-auto overscroll-y-contain px-5 pt-16 pb-wedding-nav'
 
+/** Первая секция: без contain, чтобы на главной работал нативный pull-to-refresh */
+const slideShellHero =
+  'box-border flex min-h-0 w-full flex-1 flex-col justify-center overflow-y-auto overscroll-y-auto px-5 pt-16 pb-wedding-nav'
+
 /** Вертикальный Swiper: колесо / свайп по целым секциям; hash в URL */
 export function WeddingPageSections({
   replay,
@@ -98,6 +102,7 @@ export function WeddingPageSections({
       initialSlide={initialSlide}
       nested
       threshold={40}
+      touchReleaseOnEdges
       mousewheel={{
         forceToAxis: true,
         sensitivity: 0.85,
@@ -119,7 +124,7 @@ export function WeddingPageSections({
       >
         <section
           id="hero"
-          className={`relative flex min-h-dvh flex-col justify-center bg-linear-to-br from-(--bg) via-violet-50/40 to-rose-50/30 ${slideShell} dark:via-violet-950/20 dark:to-stone-950/30`}
+          className={`relative flex min-h-0 flex-col justify-center bg-linear-to-br from-(--bg) via-violet-50/40 to-rose-50/30 ${slideShellHero} dark:via-violet-950/20 dark:to-stone-950/30`}
           aria-label="Главная"
         >
           <SectionEntrance
@@ -153,7 +158,7 @@ export function WeddingPageSections({
       >
         <section
           id="details"
-          className={`relative flex min-h-dvh flex-col justify-center border-t border-(--border) bg-(--bg) ${slideShell}`}
+          className={`relative flex min-h-0 flex-col justify-center border-t border-(--border) bg-(--bg) ${slideShell}`}
           aria-label="Детали"
         >
           <SectionEntrance
@@ -213,7 +218,7 @@ export function WeddingPageSections({
       >
         <section
           id="story"
-          className={`relative flex min-h-dvh flex-col justify-center border-t border-(--border) bg-linear-to-b from-(--bg) to-(--code-bg)/50 ${slideShell} dark:to-zinc-900/40`}
+          className={`relative flex min-h-0 flex-col justify-center border-t border-(--border) bg-linear-to-b from-(--bg) to-(--code-bg)/50 ${slideShell} dark:to-zinc-900/40`}
           aria-label="История"
         >
           <SectionEntrance
@@ -245,7 +250,7 @@ export function WeddingPageSections({
       >
         <section
           id="program"
-          className={`relative flex min-h-dvh flex-col justify-center border-t border-(--border) bg-(--bg) ${slideShell}`}
+          className={`relative flex min-h-0 flex-col justify-center border-t border-(--border) bg-(--bg) ${slideShell}`}
           aria-label="Программа"
         >
           <SectionEntrance
