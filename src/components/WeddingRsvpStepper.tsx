@@ -875,47 +875,59 @@ function StepMeals() {
                 field.onChange(e.target.value as "meat" | "fish");
               }}
             >
-              {/* Мясо */}
-              <Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Radio value="meat" color="primary" />
-                  <Typography sx={{ fontWeight: 500, fontSize: "1.1rem" }}>
-                    Мясо
-                  </Typography>
+              {/* Мясо — КЛИКАБЕЛЬНЫЙ ВЕСЬ БЛОК */}
+              <label style={{ display: "block", cursor: "pointer", marginBottom: "12px" }}>
+                <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                  <Radio 
+                    value="meat" 
+                    color="primary"
+                    checked={field.value === "meat"}
+                    onChange={() => field.onChange("meat")}
+                  />
+                  <Box>
+                    <Typography sx={{ fontWeight: 500, fontSize: "1.1rem" }}>
+                      Мясо
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ 
+                        wordBreak: "break-word",
+                        pr: { xs: 1, sm: 0 }
+                      }}
+                    >
+                      (Щечки говяжьи с картофельным пюре и соусом демиглас)
+                    </Typography>
+                  </Box>
                 </Box>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ 
-                    ml: "40px",
-                    wordBreak: "break-word",
-                    pr: { xs: 1, sm: 0 }
-                  }}
-                >
-                  (Щечки говяжьи с картофельным пюре и соусом демиглас)
-                </Typography>
-              </Box>
+              </label>
 
-              {/* Рыба */}
-              <Box sx={{ mt: 1.5 }}>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Radio value="fish" color="primary" />
-                  <Typography sx={{ fontWeight: 500, fontSize: "1.1rem" }}>
-                    Рыба
-                  </Typography>
+              {/* Рыба — КЛИКАБЕЛЬНЫЙ ВЕСЬ БЛОК */}
+              <label style={{ display: "block", cursor: "pointer" }}>
+                <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                  <Radio 
+                    value="fish" 
+                    color="primary"
+                    checked={field.value === "fish"}
+                    onChange={() => field.onChange("fish")}
+                  />
+                  <Box>
+                    <Typography sx={{ fontWeight: 500, fontSize: "1.1rem" }}>
+                      Рыба
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ 
+                        wordBreak: "break-word",
+                        pr: { xs: 1, sm: 0 }
+                      }}
+                    >
+                      (Стейк из форели со сливочным соусом на подушке из овощей)
+                    </Typography>
+                  </Box>
                 </Box>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ 
-                    ml: "40px",
-                    wordBreak: "break-word",
-                    pr: { xs: 1, sm: 0 }
-                  }}
-                >
-                  (Стейк из форели со сливочным соусом на подушке из овощей)
-                </Typography>
-              </Box>
+              </label>
             </RadioGroup>
           )}
         />
