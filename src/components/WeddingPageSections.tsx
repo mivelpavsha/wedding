@@ -435,7 +435,17 @@ export function WeddingPageSections({
                 </p>
                 <div className="mb-3 text-sm leading-normal text-(--text) md:text-base">
                 <div className="mb-3 text-sm leading-normal text-(--text) md:text-base">
-                <p>Набережная реки Фонтанки, 59</p>
+                <p>
+                  <a 
+                    href="https://yandex.ru/maps/213/moscow/?text=Набережная+реки+Фонтанки,+59"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline cursor-pointer"
+                    style={{ color: 'inherit', textDecoration: 'none' }}
+                  >
+                    Набережная реки Фонтанки, 59
+                  </a>
+                </p>
               </div>
                   <p className="mt-1">Пространство «Высота»</p>
                 </div>
