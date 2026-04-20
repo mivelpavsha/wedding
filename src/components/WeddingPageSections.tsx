@@ -423,7 +423,7 @@ export function WeddingPageSections({
                   09 июля 2026
                 </p>
                 <p className="mt-2 text-(--text)">
-                  Четверг · сбор гостей в 15:00
+                  Четверг · сбор гостей в 14:00
                 </p>
               </div>
               <div className="text-left md:border-l md:border-(--border) md:pl-14">
