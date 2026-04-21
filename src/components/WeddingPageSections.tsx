@@ -559,24 +559,21 @@ export function WeddingPageSections({
                     {item.description}
                   </p>
                   {item.address && (
-                    <p className="mt-1 text-gray-500">
+                    <p className="mt-1">
                       <a 
                         href={`https://yandex.ru/maps/?text=${encodeURIComponent(item.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: 'inherit', textDecoration: 'none' }}
-                        className="hover:underline cursor-pointer"
+                        className="text-blue-600 hover:underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        style={{ textDecoration: 'none' }}
                         onClick={(e) => {
                           const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || navigator.vendor);
                           
                           if (isMobile) {
                             e.preventDefault();
-                            // Кодируем адрес для поиска в приложении
                             const encodedAddress = item.address ? encodeURIComponent(item.address) : '';
-                            // Открываем приложение с поиском по адресу
                             window.location.href = `yandexmaps://search?text=${encodedAddress}`;
                             
-                            // Если приложение не открылось через 1 секунду — открываем сайт
                             setTimeout(() => {
                               window.location.href = `https://yandex.ru/maps/?text=${encodedAddress}`;
                             }, 1000);
