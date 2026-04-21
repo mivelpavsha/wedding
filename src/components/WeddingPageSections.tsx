@@ -446,9 +446,9 @@ export function WeddingPageSections({
                     Набережная реки Фонтанки, 59
                   </a>
                 </p>
-              </div>
-                  <p className="mt-1">Пространство «Высота»</p>
+                <p className="mt-1">Пространство «Высота»</p>
                 </div>
+              </div>
                 <p className="text-sm leading-tight text-(--text) md:text-base">
                   Мы будем ждать вас там,<br />
                   где Фонтанка отражает небо,<br />
